@@ -6,6 +6,7 @@ import numpy as np
 class Model:
     def __init__(self, grammar: PCFG, deletion_rate: float):
         self.grammar = grammar
+        self.language = list(generate(self.grammar))
         self.parser = LongestChartParser(self.grammar)
         self.deletion_rate = np.float64(deletion_rate)
 

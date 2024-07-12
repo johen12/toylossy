@@ -1,0 +1,27 @@
+import numpy as np
+
+def gen_russian_grammar_exp1(
+        p_src: np.float64, 
+        p_src_canonical: np.float64,
+        p_orc_canonical: np.float64
+) -> str:
+    return f"""
+    RC -> SRC [{p_src}] | ORC [{1-p_src}]
+    SRC -> 'RPNom' 'V'  [{p_src_canonical}] | 'RPNom' 'NP' 'V'  [{1-p_src_canonical}]
+    ORC -> 'RPAcc' 'NP' 'V' [{p_orc_canonical}] | 'RPAcc' 'V' [{1-p_orc_canonical}]
+    """
+
+def gen_russian_grammar_exp2(
+    p_src: np.float64, 
+    p_src_canonical: np.float64,
+    p_orc_canonical: np.float64,
+    p_src_one_arg: np.float64,
+    p_orc_one_arg: np.float64
+) -> str:
+    return f"""
+    RC -> SRC [{p_src}] | ORC [{1-p_src}]
+    SRC -> 'RPNom' 'V'  [{p_src_canonical}] | 'RPNom' ArgSRC 'V'  [{1-p_src_canonical}]
+    ArgSRC -> 'DO' [{p_src_one_arg}] | 'DO' 'IO' [{1-p_src_one_arg}]
+    ORC -> 'RPAcc' ArgORC 'V' [{p_orc_canonical}] | 'RPAcc' 'V' [{1-p_orc_canonical}]
+    ArgORC -> 'Subj' [{p_orc_one_arg}] | 'Subj' 'IO' [{1-p_orc_one_arg}]
+    """

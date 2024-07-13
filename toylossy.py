@@ -137,6 +137,7 @@ class LCModel:
             print_if_true(f"Current distortion: {distortion}", flag = verbose)
             print_if_true(f"p(r|c) = {probability}", flag = verbose)
             average_prob = np.float64(0.0)
+            distortion_prob_sum = np.float64(0.0)
             for reconstruction in self.get_reconstructions(distortion):
                 reconstruction_with_target = reconstruction + [target_word]
                 context_probability = self.get_prob(reconstruction_with_target)
@@ -153,6 +154,9 @@ class LCModel:
                 print_if_true(f" ## p(w_1,...,w_[i-1],w_i) = {context_probability}\n", flag = verbose)
 
                 average_prob += context_probability * distortion_probability
+                distortion_prob_sum += distortion_probability
+
+            average_prob /= distortion_prob_sum
 
             if not average_prob > 0:
                 continue
@@ -168,7 +172,7 @@ class LCModel:
 if __name__ == "__main__":
     import grammars
 
-    del_rate = 1
+    del_rate = 0.1
 
     grammar = grammars.gen_russian_grammar_exp1(0.7, 0.8, 0.6)
 
@@ -183,7 +187,7 @@ if __name__ == "__main__":
     # print(orc_local)
 
     src_local = model.calculate_processing_difficulty("RPNom V".split()) # This should be smaller...
-    src_non_local = model.calculate_processing_difficulty("RPNom V".split(), True) # ...than this
+    src_non_local = model.calculate_processing_difficulty("RPNom DO V".split(), False) # ...than this
 
     print(orc_non_local, orc_local)
     print(src_non_local, src_local)

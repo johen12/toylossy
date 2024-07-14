@@ -32,9 +32,32 @@ class SurprisalModel:
 
         self.language += list(zip(sub_sequences, sub_sequence_probs))
 
-    def calculate_processing_difficulty(self, sequence: list[str]) -> np.float64:
-        context_prob = 0.0
-        sentence_prob = 0.0
+    def calculate_processing_difficulty(self, sequence: list[str]) -> np.float64 | None:
+        """
+        Calculates the probability of the last word in the sequence given the preceeding words.
+
+        Args
+        ----
+        sequence : list[str]
+            A sequence of words from the grammar with the last being the
+            target word.
+        
+        Returns
+        np
+        """
+        context_prob = np.float64(0.0)
+        sentence_prob = np.float64(0.0)
+        context = sequence[:-1]
         for (language_sequence, probability) in self.language:
             if language_sequence == sequence:
-                pass
+                sentence_prob = probability
+            elif language_sequence == context:
+                context_prob = probability
+
+            if context_prob > 0 and sentence_prob > 0:
+                break
+
+        if context_prob == 0:
+            return None
+
+        return sentence_prob/context_prob

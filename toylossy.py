@@ -65,11 +65,14 @@ class LCModel:
         distortions = []
         # length is the length of the distorted sequence
         for length in range(len(sequence), -1, -1):
-            prob = self.deletion_rate**(len(sequence) - length) * (1-self.deletion_rate)**length
-            distortions += [(distortion, prob)
+            distortions += [(distortion, self.get_distortion_probability(sequence, distortion))
                             for distortion in self._get_distortions_of_length(sequence, length)]
             
         return distortions
+
+
+    def get_distortion_probability(self, true_sequence: list[str], distortion: list[str]) -> np.float64:
+        return self.deletion_rate**(len(true_sequence) - len(distortion)) * (1-self.deletion_rate)**len(distortion)
 
 
     def _get_distortions_of_length(self, sequence: list[str], length: int) -> list[list[str]]:
@@ -156,59 +159,17 @@ class LCModel:
                 average_prob += context_probability * distortion_probability
                 distortion_prob_sum += distortion_probability
 
+            if average_prob == 0 or distortion_prob_sum == 0:
+                # maybe a warning here?
+                continue
+
             average_prob /= distortion_prob_sum
 
-            if not average_prob > 0:
-                continue
+            
 
             print_if_true(f"E[p(w|~c)] = {average_prob}", verbose)
 
             processing_difficulty += -np.log(average_prob) * probability
-            print()
+            print_if_true("", flag = verbose)
 
         return processing_difficulty
-
-
-if __name__ == "__main__":
-    import grammars
-
-    del_rate = 0.1
-
-    grammar = grammars.gen_russian_grammar_exp1(0.7, 0.8, 0.6)
-
-    # grammar = PCFG.fromstring(grammar)
-    # model = LCModel(grammar, del_rate)
-    grammar = PCFG.fromstring(grammars.gen_russian_grammar_exp2(0.8, 0.8, 0.55, 0.9, 0.9))
-    model = LCModel(grammar, del_rate)
-
-    orc_non_local = model.calculate_processing_difficulty("RPAcc Subj V".split(), False) # This should be greater...
-    # print(orc_non_local)
-    orc_local = model.calculate_processing_difficulty("RPAcc V".split(), False) # ...than this
-    # print(orc_local)
-
-    src_local = model.calculate_processing_difficulty("RPNom V".split()) # This should be smaller...
-    src_non_local = model.calculate_processing_difficulty("RPNom DO V".split(), False) # ...than this
-
-    print(orc_non_local, orc_local)
-    print(src_non_local, src_local)
-
-    orc_diff = orc_local - orc_non_local
-    src_diff = src_local - src_non_local
-
-    print(orc_diff)
-    print(src_diff)
-
-    # # Russian experiment 2
-    no_intv = model.calculate_processing_difficulty("RPNom V".split())
-
-    # # one_adj = model.calculate_processing_difficulty("RPNom PP V".split())
-    # # two_adj = model.calculate_processing_difficulty("RPNom PP PP V".split())
-
-    one_arg = model.calculate_processing_difficulty("RPNom DO V".split())
-    two_arg = model.calculate_processing_difficulty("RPNom DO IO V".split())
-
-    print(no_intv)
-    # # print(one_adj)
-    # # print(two_adj)
-    print(one_arg)
-    print(two_arg)

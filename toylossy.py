@@ -198,19 +198,17 @@ if __name__ == "__main__":
     print(orc_diff)
     print(src_diff)
 
-    # print(model.calculate_processing_difficulty("RPAcc Subj".split()))
-
     # # Russian experiment 2
-    # no_intv = model.calculate_processing_difficulty("RPNom V".split())
+    no_intv = model.calculate_processing_difficulty("RPNom V".split())
 
     # # one_adj = model.calculate_processing_difficulty("RPNom PP V".split())
     # # two_adj = model.calculate_processing_difficulty("RPNom PP PP V".split())
 
-    # one_arg = model.calculate_processing_difficulty("RPNom DO V".split())
-    # two_arg = model.calculate_processing_difficulty("RPNom DO IO V".split())
+    one_arg = model.calculate_processing_difficulty("RPNom DO V".split())
+    two_arg = model.calculate_processing_difficulty("RPNom DO IO V".split())
 
-    # print(no_intv)
+    print(no_intv)
     # # print(one_adj)
     # # print(two_adj)
-    # print(one_arg)
-    # print(two_arg)
+    print(one_arg)
+    print(two_arg)

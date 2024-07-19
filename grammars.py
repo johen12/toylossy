@@ -31,3 +31,18 @@ def gen_hindi_grammar_exp1(
     ORC -> 'RPAcc' InnerORC [{1-p_subj_elision}] | 'RPAcc' 'V' [{p_subj_elision}]
     InnerORC -> 'Subj' 'V' [{1-p_src_local}] | 'V' 'Subj' [{p_src_local}]
     """
+
+def gen_hindi_grammar_exp2(
+    p_cp: np.float64,
+    p_cp_short: np.float64,
+    p_cp_lightverb: np.float64,
+    p_sp_short: np.float64,
+    p_sp_lightverb: np.float64,
+) -> str:
+    return f"""
+    S -> CPP [{p_cp}] | SPP [{1-p_cp}]
+    CPP -> 'CPNoun' 'Adj' CPVerb [{p_cp_short}] | 'CPNoun' 'Adj' 'Adj' CPVerb [{1-p_cp_short}]
+    CPVerb -> 'LightVerb' [{p_cp_lightverb}] | 'OtherVerb' [{1-p_cp_lightverb}]
+    SPP -> 'SPNoun' 'Adj' SPVerb [{p_sp_short}] | 'SPNoun' 'Adj' 'Adj' SPVerb [{1-p_sp_short}]
+    SPVerb -> 'LightVerb' [{p_sp_lightverb}] | 'OtherVerb' [{1-p_sp_lightverb}]
+    """

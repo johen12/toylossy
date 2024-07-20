@@ -149,6 +149,7 @@ class LossyContextModel(ABC):
         np.float64
             The processing difficulty.
         """
+
         print_if_true(f"True context: {' '.join(sequence[:-1])}", flag = verbose)
         target_word = sequence[-1]
         processing_difficulty = np.float64(0.0)
@@ -156,11 +157,12 @@ class LossyContextModel(ABC):
             print_if_true(f"Current distortion: {distortion}", flag = verbose)
             print_if_true(f"p(r|c) = {probability}", flag = verbose)
             average_prob = np.float64(0.0)
-            distortion_prob_sum = np.float64(0.0)
+            normaliser = np.float64(0.0)
             for reconstruction in self.get_reconstructions(distortion):
                 reconstruction_with_target = reconstruction + [target_word]
-                context_probability = self.get_prob(reconstruction_with_target)
-                if not context_probability > 0:
+                context_probability = self.get_prob(reconstruction)
+                target_probability = self.get_prob(reconstruction_with_target)/context_probability
+                if target_probability == 0:
                     continue
 
                 print_if_true(f" ## Possible reconstructed context: {' '.join(reconstruction)}", flag = verbose)
@@ -169,17 +171,17 @@ class LossyContextModel(ABC):
                 distortion_probability = self.get_distortion_probability(reconstruction, distortion)
                 print_if_true(f" ## p(r|~c) = {distortion_probability}", flag = verbose)
 
-                print_if_true(f" ## p(w_1,...,w_[i-1],w_i) = {context_probability}\n", flag = verbose)
+                print_if_true(f" ## p_L(~c) = {context_probability}", flag = verbose)
+                print_if_true(f" ## p_L(w|~c) = {target_probability}\n", flag = verbose)
 
-                average_prob += context_probability * distortion_probability
-                distortion_prob_sum += distortion_probability
+                average_prob += context_probability * distortion_probability * target_probability
+                normaliser += distortion_probability * context_probability
 
-            if average_prob == 0 or distortion_prob_sum == 0:
+            if average_prob == 0 or normaliser == 0:
                 # maybe a warning here?
                 continue
 
-            average_prob /= distortion_prob_sum
-
+            average_prob /= normaliser
             
 
             print_if_true(f"E[p(w|~c)] = {average_prob}", verbose)
@@ -187,6 +189,7 @@ class LossyContextModel(ABC):
             processing_difficulty += -np.log(average_prob) * probability
             print_if_true("", flag = verbose)
 
+        print_if_true(f"D(w|c) = {processing_difficulty}", verbose)
         return processing_difficulty
 
 
@@ -209,10 +212,8 @@ class SurprisalModel(LossyContextModel):
     A surprisal model implemented as a special case of
     lossy-context surprisal with no loss of information.
     """
-    def __init__(self, grammar: PCFG, deletion_rate: float, max_depth: int = None):
+    def __init__(self, grammar: PCFG, max_depth: int = None):
         super().__init__(grammar, max_depth = max_depth)
-
-        self.deletion_rate = np.float64(deletion_rate)
 
     def get_distortion_probability(self, true_sequence: list[str], distortion: list[str]) -> np.float64:
         return np.float64(1.0 if distortion == true_sequence else 0.0)

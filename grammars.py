@@ -29,7 +29,7 @@ def gen_hindi_grammar_exp1(
     SRC -> 'RPErg' InnerSRC [{1-p_obj_elision}] | 'RPErg' 'V' [{p_obj_elision}]
     InnerSRC -> 'DO' 'V' [{1-p_src_local}] | 'V' 'DO' [{p_src_local}]
     ORC -> 'RPAcc' InnerORC [{1-p_subj_elision}] | 'RPAcc' 'V' [{p_subj_elision}]
-    InnerORC -> 'Subj' 'V' [{1-p_src_local}] | 'V' 'Subj' [{p_src_local}]
+    InnerORC -> 'Subj' 'V' [{1-p_orc_local}] | 'V' 'Subj' [{p_orc_local}]
     """
 
 def gen_hindi_grammar_exp2(
